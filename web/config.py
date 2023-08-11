@@ -2,14 +2,13 @@
 # @Author : YueMengRui
 import os
 
-OCR_URL = 'http://192.168.2.40:6000/ai/ocr/general'
+OCR_URL = 'http://127.0.0.1:6000/ai/ocr/general'
 
-EMBEDDING_MODEL_NAME_LIST_URL = 'http://192.168.2.40:6000/ai/embedding/model/list'
-TEXT_EMBEDDING_URL = 'http://192.168.2.40:6000/ai/embedding/text'
+EMBEDDING_MODEL_NAME_LIST_URL = 'http://127.0.0.1:6000/ai/embedding/model/list'
+TEXT_EMBEDDING_URL = 'http://127.0.0.1:6000/ai/embedding/text'
 
-LLM_MODEL_NAME_LIST_URL = 'http://192.168.2.40:6000/ai/llm/list'
-LLM_CHAT_URL = 'http://192.168.2.40:6000/ai/llm/chat'
-LLM_STREAM_CHAT_URL = 'http://192.168.2.40:6000/ai/llm/stream/chat'
+LLM_MODEL_NAME_LIST_URL = 'http://127.0.0.1:6000/ai/llm/list'
+LLM_CHAT_URL = 'http://127.0.0.1:6000/ai/llm/chat'
 
 VECTOR_STORE_ROOT_DIR = './VectorStores'
 

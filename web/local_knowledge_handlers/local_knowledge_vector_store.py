@@ -32,21 +32,21 @@ class KnowledgeVectorStore:
             return False
         elif os.path.isfile(filepath):
             file = os.path.split(filepath)[-1]
-            try:
-                docs = load_file(filepath)
-                for doc in docs:
-                    doc.metadata.update({'file_hash': file_hash})
-                self.write_log({'load_doc': docs})
-                sentences = [d.page_content for d in docs]
-                embeddings = get_embeddings(embedding_model_name, sentences)
-                vector_store_dir = os.path.join(vector_dir, file_hash)
-                vector_store = MyFAISS.from_documents(docs, embeddings=embeddings)
-                vector_store.save_local(vector_store_dir)
-                self.write_log({"file load": "{}已成功加载".format(file)})
-                return True
-            except Exception as e:
-                self.write_log({'file load error': '{}未能成功加载: {}'.format(file, str(e))})
-                return False
+            # try:
+            docs = load_file(filepath)
+            for doc in docs:
+                doc.metadata.update({'file_hash': file_hash})
+            self.write_log({'load_doc': docs})
+            sentences = [d.page_content for d in docs]
+            embeddings = get_embeddings(embedding_model_name, sentences)
+            vector_store_dir = os.path.join(vector_dir, file_hash)
+            vector_store = MyFAISS.from_documents(docs, embeddings=embeddings)
+            vector_store.save_local(vector_store_dir)
+            self.write_log({"file load": "{}已成功加载".format(file)})
+            return True
+            # except Exception as e:
+            #     self.write_log({'file load error': '{}未能成功加载: {}'.format(file, str(e))})
+            #     return False
         else:
             return False
 
@@ -77,6 +77,7 @@ class KnowledgeVectorStore:
 
         related_docs = vector_store.similarity_search_with_score_by_vector(embedding, k=vector_search_top_k,
                                                                            chunk_size=knowledge_chunk_size,
+                                                                           chunk_connect=knowledge_chunk_connect,
                                                                            **kwargs)
 
         return related_docs
@@ -102,7 +103,10 @@ class KnowledgeVectorStore:
         if not true_related_docs:
             return query, []
 
-        context = "\n".join([doc.page_content for doc in true_related_docs])
+        context = ''
+        for ind, doc in enumerate(true_related_docs):
+            context += '文本片段{}: {}\n'.format(str(ind + 1), doc.page_content)
+            # context = "\n".join([doc.page_content for doc in true_related_docs])
         self.write_log({'context_len': len(context), 'context': context})
         prompt = prompt_template.format(context=context, query=query)
 

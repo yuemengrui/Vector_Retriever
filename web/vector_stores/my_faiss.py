@@ -97,7 +97,7 @@ class MyFAISS:
             embedding: List[float],
             k: int = 4,
             chunk_size=512,
-            chunk_conent=True,
+            chunk_connect=True,
             **kwargs: Any,
     ) -> List[Tuple[Document, float]]:
         """Return docs most similar to query.
@@ -131,7 +131,7 @@ class MyFAISS:
                 continue
             _id = self.index_to_docstore_id[i]
             doc = self.docstore.search(_id)
-            if not chunk_conent:
+            if not chunk_connect:
                 if not isinstance(doc, Document):
                     raise ValueError(f"Could not find document for id {_id}, got {doc}")
                 doc.metadata["score"] = 1 - scores[0][j]
@@ -163,33 +163,33 @@ class MyFAISS:
                             id_set.add(l)
                 if break_flag:
                     break
-        if not chunk_conent:
-            return docs
-        if len(id_set) == 0:
-            return []
-        id_list = sorted(list(id_set))
-        id_lists = self.seperate_list(id_list)
-        for id_seq in id_lists:
-            for id in id_seq:
-                if id == id_seq[0]:
-                    _id = self.index_to_docstore_id[id]
-                    doc = self.docstore.search(_id)
-                else:
-                    _id0 = self.index_to_docstore_id[id]
-                    doc0 = self.docstore.search(_id0)
-                    doc.page_content += " " + doc0.page_content
-            if not isinstance(doc, Document):
-                raise ValueError(f"Could not find document for id {_id}, got {doc}")
-            doc_score = min([scores[0][id] for id in [indices[0].tolist().index(i) for i in id_seq if i in indices[0]]])
-            doc.metadata["score"] = 1 - doc_score
-            docs.append(doc)
+        if chunk_connect:
+            if len(id_set) == 0:
+                return []
+            id_list = sorted(list(id_set))
+            id_lists = self.seperate_list(id_list)
+            for id_seq in id_lists:
+                for id in id_seq:
+                    if id == id_seq[0]:
+                        _id = self.index_to_docstore_id[id]
+                        doc = self.docstore.search(_id)
+                    else:
+                        _id0 = self.index_to_docstore_id[id]
+                        doc0 = self.docstore.search(_id0)
+                        doc.page_content += " " + doc0.page_content
+                if not isinstance(doc, Document):
+                    raise ValueError(f"Could not find document for id {_id}, got {doc}")
+                doc_score = min(
+                    [scores[0][id] for id in [indices[0].tolist().index(i) for i in id_seq if i in indices[0]]])
+                doc.metadata["score"] = 1 - doc_score
+                docs.append(doc)
 
         print(docs)
-        score_threshold = kwargs.get("score_threshold", 0.45)
+        score_threshold = kwargs.get("score_threshold", 0.5)
         if score_threshold is not None:
             docs = [doc for doc in docs if doc.metadata['score'] >= score_threshold]
 
-        docs.sort(key=lambda x:x.metadata['score'], reverse=True)
+        docs.sort(key=lambda x: x.metadata['score'], reverse=True)
         return docs
 
     def max_marginal_relevance_search_by_vector(

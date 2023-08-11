@@ -26,15 +26,18 @@ class ChineseTextSplitter(CharacterTextSplitter):
         text = text.rstrip()  # 段尾如果有多余的\n就去掉它
         # 很多规则中会考虑分号;，但是这里我把它忽略不计，破折号、英文双引号等同样忽略，需要的再做些简单调整即可。
         ls = [i for i in text.split("\n") if i]
+        print(ls)
         for ele in ls:
             if len(ele) > self.sentence_size:
                 ele1 = re.sub(r'([;；]["’”」』]{0,2})([^;；])', r'\1\n\2', ele)
                 ele1_ls = ele1.split("\n")
+                print(ele1_ls)
                 for ele_ele1 in ele1_ls:
                     if len(ele_ele1) > self.sentence_size:
                         ele_ele1 = re.sub(r'([,，.]["’”」』]{0,2})([^,，.])', r'\1\n\2', ele_ele1)
                         ele_ele2 = re.sub(r'([\n]{1,}| {2,}[;；"’”」』]{0,2})([^\s])', r'\1\n\2', ele_ele1)
                         ele2_ls = ele_ele2.split("\n")
+                        print(ele2_ls)
                         for ele_ele2 in ele2_ls:
                             if len(ele_ele2) > self.sentence_size:
                                 ele_ele3 = re.sub('( ["’”」』]{0,2})([^ ])', r'\1\n\2', ele_ele2)
